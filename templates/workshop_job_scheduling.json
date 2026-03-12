@@ -1,0 +1,72 @@
+{
+  "module": "workshop",
+  "template_name": "job_scheduling",
+  "version": "1.0.0",
+  "description": "Generates a draft job schedule or daily workshop plan based on open jobs, technician availability, and priority. DRAFT-ONLY — must be approved by workshop manager.",
+
+  "input_schema": {
+    "type": "object",
+    "required": ["kpi_summary"],
+    "properties": {
+      "kpi_summary": {
+        "type": "object",
+        "properties": {
+          "open_jobs_count":       { "type": "number" },
+          "overdue_jobs_count":    { "type": "number" },
+          "avg_completion_hours":  { "type": "number" },
+          "technicians_available": { "type": "number" }
+        }
+      },
+      "anomalies": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "column": { "type": "string" },
+            "value":  { "type": "number" },
+            "reason": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+
+  "output_schema": {
+    "type": "object",
+    "required": ["title", "schedule", "draft_flag"],
+    "properties": {
+      "title":    { "type": "string" },
+      "schedule": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "time_slot":   { "type": "string" },
+            "job_id":      { "type": "string" },
+            "description": { "type": "string" },
+            "technician":  { "type": "string" },
+            "priority":    { "type": "string", "enum": ["low", "medium", "high", "urgent"] }
+          }
+        }
+      },
+      "notes":      { "type": "string" },
+      "draft_flag": { "type": "boolean", "const": true }
+    }
+  },
+
+  "system_prompt": "You are Autify Engine, a local AI assistant for workshop/service SMBs. Generate a draft daily job schedule. Prioritise overdue jobs and balance workload across available technicians. The output is a DRAFT — label it clearly. Never execute, only draft for manager review.",
+
+  "user_prompt_template": "Based on current workshop data, generate a daily job schedule draft:\n\nKPIs:\n{{kpi_summary}}\n\nAnomalies:\n{{anomalies}}\n\nProduce a structured JSON matching the output schema.",
+
+  "mock_output": {
+    "title": "[DRAFT] Daily Workshop Schedule — 3 Mar 2026",
+    "schedule": [
+      { "time_slot": "08:00–10:00", "job_id": "JOB-0412", "description": "Brake pad replacement — Toyota Hilux", "technician": "Sipho M.", "priority": "urgent" },
+      { "time_slot": "08:00–11:00", "job_id": "JOB-0408", "description": "Full service — VW Polo", "technician": "Johan V.", "priority": "high" },
+      { "time_slot": "10:30–12:00", "job_id": "JOB-0415", "description": "Alignment check — Ford Ranger", "technician": "Sipho M.", "priority": "medium" },
+      { "time_slot": "13:00–15:00", "job_id": "JOB-0410", "description": "Engine diagnostic — BMW 320i", "technician": "Johan V.", "priority": "low" }
+    ],
+    "notes": "JOB-0408 is 2 days overdue — prioritised. JOB-0412 flagged urgent by client.",
+    "draft_flag": true
+  }
+}

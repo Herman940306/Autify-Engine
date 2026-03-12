@@ -1,0 +1,71 @@
+{
+  "module": "professional_services",
+  "template_name": "billing_workflow",
+  "version": "1.0.0",
+  "description": "Generates a draft billing summary and overdue reminders for a professional services firm. DRAFT-ONLY — human approval required before sending reminders.",
+
+  "input_schema": {
+    "type": "object",
+    "required": ["kpi_summary"],
+    "properties": {
+      "kpi_summary": {
+        "type": "object",
+        "properties": {
+          "outstanding_invoices_count": { "type": "number" },
+          "total_outstanding_sum":      { "type": "number" },
+          "overdue_invoices_count":     { "type": "number" },
+          "avg_days_overdue_mean":      { "type": "number" }
+        }
+      },
+      "anomalies": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "column": { "type": "string" },
+            "value":  { "type": "number" },
+            "reason": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+
+  "output_schema": {
+    "type": "object",
+    "required": ["subject", "body", "reminders", "draft_flag"],
+    "properties": {
+      "subject":   { "type": "string" },
+      "body":      { "type": "string" },
+      "reminders": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "client":        { "type": "string" },
+            "invoice":       { "type": "string" },
+            "amount":        { "type": "number" },
+            "days_overdue":  { "type": "number" },
+            "reminder_text": { "type": "string" }
+          }
+        }
+      },
+      "draft_flag": { "type": "boolean", "const": true }
+    }
+  },
+
+  "system_prompt": "You are Autify Engine, a local AI assistant for professional services firms. Generate a draft billing summary with overdue reminders. Use polite, professional language suitable for South African business context. The output is a DRAFT — label clearly. Never send without human approval.",
+
+  "user_prompt_template": "Generate a billing workflow summary with overdue reminders from:\n\nKPIs:\n{{kpi_summary}}\n\nAnomalies:\n{{anomalies}}\n\nFormat as JSON matching the output schema.",
+
+  "mock_output": {
+    "subject": "[DRAFT] Billing Summary & Overdue Reminders — March 2026",
+    "body": "## Monthly Billing Summary (DRAFT)\n\n- **Outstanding Invoices:** 7\n- **Total Outstanding:** R 184,200.00\n- **Overdue Invoices:** 3\n- **Avg Days Overdue:** 18\n\n### Overdue Reminders\nSee attached reminder drafts for the 3 overdue accounts.\n\n*This is a DRAFT. Do not send reminders until approved.*",
+    "reminders": [
+      { "client": "Kgosi Consulting", "invoice": "INV-2026-0028", "amount": 42000, "days_overdue": 32, "reminder_text": "Dear Kgosi Consulting, this is a friendly reminder that invoice INV-2026-0028 (R42,000) is now 32 days overdue. We would appreciate settlement at your earliest convenience." },
+      { "client": "Nala Legal", "invoice": "INV-2026-0031", "amount": 18500, "days_overdue": 14, "reminder_text": "Dear Nala Legal, a friendly reminder that invoice INV-2026-0031 (R18,500) is 14 days overdue. Please arrange payment." },
+      { "client": "Moroka Property Group", "invoice": "INV-2026-0029", "amount": 65000, "days_overdue": 8, "reminder_text": "Dear Moroka Property Group, invoice INV-2026-0029 (R65,000) is 8 days past due. We look forward to receiving payment soon." }
+    ],
+    "draft_flag": true
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "module": "retail",
+  "template_name": "pos_reporting",
+  "version": "1.0.0",
+  "description": "Generates a draft POS (Point-of-Sale) daily/weekly report summarising sales, top products, and revenue trends. Output is DRAFT-ONLY and must be approved by a human before distribution.",
+
+  "input_schema": {
+    "type": "object",
+    "required": ["kpi_summary", "anomalies"],
+    "properties": {
+      "kpi_summary": {
+        "type": "object",
+        "description": "Deterministic KPIs from the analysis engine",
+        "properties": {
+          "total_revenue_sum":  { "type": "number" },
+          "total_orders_sum":   { "type": "number" },
+          "avg_basket_mean":    { "type": "number" },
+          "units_sold_sum":     { "type": "number" }
+        }
+      },
+      "anomalies": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "column": { "type": "string" },
+            "value":  { "type": "number" },
+            "reason": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+
+  "output_schema": {
+    "type": "object",
+    "required": ["subject", "body", "draft_flag"],
+    "properties": {
+      "subject":    { "type": "string", "description": "Email subject line" },
+      "body":       { "type": "string", "description": "Full report body (Markdown)" },
+      "highlights": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Bullet-point highlights"
+      },
+      "draft_flag": {
+        "type": "boolean",
+        "const": true,
+        "description": "Must always be true — enforced draft-only workflow"
+      }
+    }
+  },
+
+  "system_prompt": "You are Autify Engine, a local AI assistant for retail SMBs. Generate a professional POS summary report in Markdown format. Include: total revenue, units sold, average basket size, top-selling categories, and any anomalies flagged. The output is a DRAFT and must be clearly labelled as such. Never execute actions — only produce drafts for human review.",
+
+  "user_prompt_template": "Based on the following deterministic analysis results, generate a POS reporting draft:\n\nKPI Summary:\n{{kpi_summary}}\n\nAnomalies detected:\n{{anomalies}}\n\nFormat the output as a structured JSON matching the output schema.",
+
+  "mock_output": {
+    "subject": "[DRAFT] Weekly POS Report — Retail Store",
+    "body": "## Weekly Point-of-Sale Report (DRAFT)\n\n**Period:** 24 Feb – 2 Mar 2026\n\n### Key Metrics\n- **Total Revenue:** R 142,350.00\n- **Total Orders:** 1,204\n- **Average Basket Size:** R 118.23\n- **Units Sold:** 3,891\n\n### Anomalies\n- Column `discount_pct`: Value 78.5% detected (Z-score > 3). Possible pricing error.\n\n*This is a DRAFT. Please review and approve before distribution.*",
+    "highlights": [
+      "Revenue up 8% week-on-week",
+      "1 anomaly flagged in discount column",
+      "Top SKU: Widget Pro (312 units)"
+    ],
+    "draft_flag": true
+  }
+}

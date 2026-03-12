@@ -1,0 +1,85 @@
+{
+  "module": "professional_services",
+  "template_name": "invoice_draft",
+  "version": "1.0.0",
+  "description": "Generates a draft invoice for professional services rendered (consulting, legal, accounting, etc.). DRAFT-ONLY — requires partner/manager approval before dispatch.",
+
+  "input_schema": {
+    "type": "object",
+    "required": ["kpi_summary"],
+    "properties": {
+      "kpi_summary": {
+        "type": "object",
+        "properties": {
+          "total_billable_hours": { "type": "number" },
+          "hourly_rate_mean":     { "type": "number" },
+          "total_amount_sum":     { "type": "number" },
+          "vat_rate":             { "type": "number", "default": 0.15 }
+        }
+      },
+      "anomalies": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "column": { "type": "string" },
+            "value":  { "type": "number" },
+            "reason": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+
+  "output_schema": {
+    "type": "object",
+    "required": ["subject", "invoice", "draft_flag"],
+    "properties": {
+      "subject": { "type": "string" },
+      "invoice": {
+        "type": "object",
+        "properties": {
+          "invoice_number": { "type": "string" },
+          "client_name":    { "type": "string" },
+          "line_items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "description": { "type": "string" },
+                "hours":       { "type": "number" },
+                "rate":        { "type": "number" },
+                "total":       { "type": "number" }
+              }
+            }
+          },
+          "subtotal":  { "type": "number" },
+          "vat":       { "type": "number" },
+          "total_due": { "type": "number" }
+        }
+      },
+      "draft_flag": { "type": "boolean", "const": true }
+    }
+  },
+
+  "system_prompt": "You are Autify Engine, a local AI assistant for professional services firms. Generate a draft invoice based on time-tracking and billing data. Use South African Rand (ZAR) and a 15% VAT rate unless specified otherwise. The output is a DRAFT — label clearly. Never dispatch without human approval.",
+
+  "user_prompt_template": "Generate a draft invoice from the following billing data:\n\nKPIs:\n{{kpi_summary}}\n\nAnomalies:\n{{anomalies}}\n\nFormat as JSON matching the output schema.",
+
+  "mock_output": {
+    "subject": "[DRAFT] Invoice #INV-2026-0034 — Consulting Services",
+    "invoice": {
+      "invoice_number": "INV-2026-0034",
+      "client_name": "Thando Holdings (Pty) Ltd",
+      "line_items": [
+        { "description": "Strategic consulting — Feb 2026", "hours": 24, "rate": 1500, "total": 36000 },
+        { "description": "Data analysis & reporting", "hours": 8, "rate": 1200, "total": 9600 },
+        { "description": "Stakeholder workshop facilitation", "hours": 4, "rate": 2000, "total": 8000 }
+      ],
+      "subtotal": 53600,
+      "vat": 8040,
+      "total_due": 61640
+    },
+    "draft_flag": true
+  }
+}

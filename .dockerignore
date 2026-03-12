@@ -1,0 +1,14 @@
+# ═══════════════════════════════════════════════════════════════
+#  Autify Engine V1 — .dockerignore
+# ═══════════════════════════════════════════════════════════════
+__pycache__
+*.pyc
+*.pyo
+.git
+.env
+*.db
+node_modules
+dashboard/node_modules
+dashboard/dist
+.vscode
+*.egg-info

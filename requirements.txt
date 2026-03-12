@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pandas
+numpy
+pytest
+httpx
+openpyxl
+pypdf2
+requests
+python-multipart

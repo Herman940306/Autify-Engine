@@ -1,0 +1,42 @@
+{
+  "module": "workshop",
+  "template_name": "client_notification",
+  "version": "1.0.0",
+  "description": "Generates draft client notification messages for job status updates (e.g., ready for collection, additional work required). DRAFT-ONLY.",
+
+  "input_schema": {
+    "type": "object",
+    "required": ["kpi_summary"],
+    "properties": {
+      "kpi_summary": {
+        "type": "object",
+        "properties": {
+          "jobs_ready_for_collection": { "type": "number" },
+          "jobs_needing_approval":     { "type": "number" }
+        }
+      }
+    }
+  },
+
+  "output_schema": {
+    "type": "object",
+    "required": ["subject", "body", "draft_flag"],
+    "properties": {
+      "subject":    { "type": "string" },
+      "body":       { "type": "string" },
+      "sms_short":  { "type": "string", "maxLength": 160 },
+      "draft_flag": { "type": "boolean", "const": true }
+    }
+  },
+
+  "system_prompt": "You are Autify Engine, a local AI assistant for workshop businesses. Draft a professional, friendly client notification about their vehicle/job status. Keep it concise. The output is a DRAFT — never send without human approval.",
+
+  "user_prompt_template": "Generate a client notification draft for the following workshop update:\n\nKPIs:\n{{kpi_summary}}\n\nFormat as JSON matching the output schema. Include both an email body and an SMS-length version.",
+
+  "mock_output": {
+    "subject": "[DRAFT] Your Vehicle is Ready for Collection",
+    "body": "Dear Client,\n\nGood news — your vehicle (Job #JOB-0412) is now ready for collection.\n\n**Work completed:**\n- Brake pad replacement (front & rear)\n- Fluid top-up\n\n**Total:** R 2,450.00 (incl. VAT)\n\nPlease collect during business hours (Mon–Fri, 08:00–17:00).\n\nKind regards,\nThe Workshop Team\n\n*This is a DRAFT notification. It has not been sent to the client.*",
+    "sms_short": "Hi! Your vehicle (Job #JOB-0412) is ready for collection. Total: R2,450. Collect Mon-Fri 08:00-17:00. [DRAFT]",
+    "draft_flag": true
+  }
+}

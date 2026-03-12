@@ -1,0 +1,50 @@
+# ═══════════════════════════════════════════════════════════════
+#  Autify Engine V1 — Backend Dockerfile
+#  Zero-Cloud: all processing stays local. No outbound data.
+# ═══════════════════════════════════════════════════════════════
+FROM python:3.11-slim
+
+LABEL maintainer="Autify Engine Team"
+LABEL description="Autify Engine V1 — FastAPI backend (Zero-Cloud)"
+
+WORKDIR /app
+
+# System deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python deps
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Application code
+COPY api/       ./api/
+COPY analysis/  ./analysis/
+COPY core/      ./core/
+COPY database/  ./database/
+COPY license/   ./license/
+COPY llm/       ./llm/
+COPY parsers/   ./parsers/
+COPY templates/ ./templates/
+
+# __init__.py files for package discovery
+RUN find . -type d -exec touch {}/__init__.py \;
+
+# Environment
+ENV PYTHONUNBUFFERED=1
+ENV DATABASE_URL=sqlite:///./data/db.sqlite
+ENV DB_PATH=data/db.sqlite
+ENV BACKEND_PORT=18080
+ENV LLM_HOST=llm
+ENV LLM_PORT=11434
+ENV LICENSE_SERVER_URL=http://localhost:9090
+
+RUN mkdir -p /app/data
+
+EXPOSE 18080
+
+HEALTHCHECK --interval=30s --timeout=5s \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:18080/health')" || exit 1
+
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "18080"]

@@ -1,0 +1,63 @@
+{
+  "module": "retail",
+  "template_name": "inventory_alert",
+  "version": "1.0.0",
+  "description": "Generates a draft inventory alert when stock levels fall below reorder thresholds or anomalies are detected. DRAFT-ONLY — requires human approval.",
+
+  "input_schema": {
+    "type": "object",
+    "required": ["kpi_summary", "anomalies"],
+    "properties": {
+      "kpi_summary": {
+        "type": "object",
+        "properties": {
+          "low_stock_count":    { "type": "number" },
+          "out_of_stock_count": { "type": "number" },
+          "overstock_count":    { "type": "number" }
+        }
+      },
+      "anomalies": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "column": { "type": "string" },
+            "value":  { "type": "number" },
+            "reason": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+
+  "output_schema": {
+    "type": "object",
+    "required": ["subject", "body", "severity", "draft_flag"],
+    "properties": {
+      "subject":    { "type": "string" },
+      "body":       { "type": "string" },
+      "severity":   { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+      "action_items": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "draft_flag": { "type": "boolean", "const": true }
+    }
+  },
+
+  "system_prompt": "You are Autify Engine, a local AI assistant for retail SMBs. Generate a draft inventory alert email. Flag low-stock, out-of-stock, and overstock items. Include severity classification. The output is a DRAFT and must be labelled clearly. Never execute — only draft for human review.",
+
+  "user_prompt_template": "Based on the following inventory analysis, generate an inventory alert draft:\n\nKPI Summary:\n{{kpi_summary}}\n\nAnomalies:\n{{anomalies}}\n\nFormat as JSON matching the output schema.",
+
+  "mock_output": {
+    "subject": "[DRAFT] Inventory Alert — 5 Items Below Reorder Point",
+    "body": "## Inventory Alert (DRAFT)\n\n### Summary\n- **Low Stock Items:** 5\n- **Out of Stock:** 1\n- **Overstock:** 2\n\n### Action Required\n1. Reorder SKU-1042 (Widget Standard) — 3 units remaining\n2. SKU-0887 (Cable 2m) — OUT OF STOCK\n3. Review overstock on SKU-2201 (Packaging Large) — 842 units vs 200 target\n\n*This is a DRAFT. Please review and approve before sending purchase orders.*",
+    "severity": "high",
+    "action_items": [
+      "Reorder SKU-1042 immediately",
+      "Expedite SKU-0887 from supplier",
+      "Review overstock levels for SKU-2201"
+    ],
+    "draft_flag": true
+  }
+}

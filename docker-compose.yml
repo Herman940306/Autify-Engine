@@ -1,0 +1,105 @@
+# ═══════════════════════════════════════════════════════════════
+#  Autify Engine V1 — Docker Compose
+#  Orchestrates backend (FastAPI) + frontend (React) + LLM + SQLite.
+#  Fully local deployment — Zero-Cloud principle enforced.
+# ═══════════════════════════════════════════════════════════════
+
+version: "3.9"
+
+services:
+  # ── FastAPI Backend ──────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: autify-backend
+    ports:
+      - "${BACKEND_PORT:-18080}:18080"
+    volumes:
+      - db-data:/app/data
+      - ./templates:/app/templates:ro
+    environment:
+      - DATABASE_URL=sqlite:///./data/db.sqlite
+      - DB_PATH=data/db.sqlite
+      - BACKEND_PORT=18080
+      - DASHBOARD_PORT=${DASHBOARD_PORT:-18300}
+      - LLM_HOST=llm
+      - LLM_PORT=11434
+      - LICENSE_SERVER_URL=${LICENSE_SERVER_URL:-http://localhost:9090}
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+          cpus: "1"
+        reservations:
+          memory: 128M
+    depends_on:
+      llm:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:18080/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── React Dashboard ─────────────────────────────────────────
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    container_name: autify-dashboard
+    ports:
+      - "${DASHBOARD_PORT:-18300}:18300"
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+          cpus: "0.25"
+        reservations:
+          memory: 16M
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:18300/ || wget --spider -q http://localhost:18300/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── Local LLM Service ──────────────────────────────────────
+  llm:
+    image: ollama/ollama:latest
+    container_name: autify-llm
+    ports:
+      - "${LLM_PORT:-18434}:11434"
+    volumes:
+      - llm-models:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      # ── Resource optimisation ──
+      - OLLAMA_NUM_PARALLEL=1          # one request at a time
+      - OLLAMA_MAX_LOADED_MODELS=1     # only keep active model in RAM
+      - OLLAMA_KEEP_ALIVE=2m           # unload model after 2 min idle
+      - OLLAMA_MAX_QUEUE=2             # reject excess queue pressure
+    deploy:
+      resources:
+        limits:
+          memory: 2560M                # hard cap – tight for 3B model
+          cpus: "2"                    # limit to 2 logical cores
+        reservations:
+          memory: 512M
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  db-data:
+    driver: local
+  llm-models:
+    driver: local
