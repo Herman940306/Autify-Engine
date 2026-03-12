@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Autify Engine V1 — Dashboard Demo</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={theme:{extend:{colors:{
+brand:{50:'#eef7ff',100:'#d9ecff',200:'#bcddff',300:'#8ec8ff',400:'#59a8ff',
+500:'#3388ff',600:'#1a6af5',700:'#1354e1',800:'#1645b6',900:'#183d8f',950:'#132757'}
+}}}}}
+</script>
+<style>
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+@keyframes typeChar{from{width:0}to{width:100%}}
+@keyframes blink{50%{opacity:0}}
+@keyframes bounce1{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+@keyframes bounce2{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+@keyframes bounce3{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.fade-up{animation:fadeUp .45s ease both}
+.fade-in{animation:fadeIn .35s ease both}
+.slide-in{animation:slideIn .35s ease both}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#f3f4f6;border-radius:3px}
+::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}
+body{font-family:ui-sans-serif,system-ui,-apple-system,sans-serif}
+</style>
+</head>
+<body class="bg-gray-50 overflow-hidden" style="width:1280px;height:720px">
+
+<!-- ════════ LOGIN SCREEN ════════ -->
+<div id="loginScreen" class="fixed inset-0 bg-gradient-to-br from-brand-900 to-brand-950 flex items-center justify-center z-50">
+  <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm fade-up">
+    <div class="flex flex-col items-center mb-6">
+      <div class="w-14 h-14 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold text-xl mb-3">AE</div>
+      <h1 class="text-xl font-bold text-gray-900">Autify Engine V1</h1>
+      <p class="text-sm text-gray-500 mt-1">Zero-Cloud · Draft-Only · Secure</p>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+        <input id="loginUser" type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="admin">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <input id="loginPass" type="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="••••••••">
+      </div>
+      <button id="loginBtn" class="w-full bg-brand-600 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-brand-700 transition">Sign In</button>
+    </div>
+    <p class="text-xs text-gray-400 text-center mt-4">Default: admin / admin123</p>
+  </div>
+</div>
+
+<!-- ════════ MAIN LAYOUT ════════ -->
+<div id="mainLayout" class="hidden flex h-screen" style="height:720px">
+
+  <!-- ── Sidebar ── -->
+  <aside class="w-60 bg-brand-950 text-white flex flex-col flex-shrink-0" style="min-height:720px">
+    <div class="px-4 py-4 border-b border-brand-800 flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center text-white font-bold text-sm">AE</div>
+      <span class="text-lg font-semibold">Autify Engine</span>
+    </div>
+    <nav class="flex-1 px-3 py-3 space-y-1" id="sidebarNav">
+      <a data-page="dashboard" class="nav-link active flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer">
+        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a data-page="clients" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer">
+        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clients
+      </a>
+      <a data-page="inputs" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer">
+        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v5h5"/><path d="M2 15h10"/><path d="M9 18l3-3-3-3"/></svg>
+        Inputs
+      </a>
+      <a data-page="drafts" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer">
+        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 13H8"/><path d="M16 17H8"/><path d="M16 13h-2"/></svg>
+        Drafts
+      </a>
+      <a data-page="chat" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer">
+        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Chat
+      </a>
+      <a data-page="reports" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer">
+        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-12"/></svg>
+        Reports
+      </a>
+      <a data-page="users" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer">
+        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+        Users
+      </a>
+      <a data-page="settings" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer">
+        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-brand-800">
+      <div class="flex items-center gap-3">
+        <div class="w-7 h-7 rounded-full bg-brand-600 flex items-center justify-center text-xs font-bold">A</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium truncate">Admin</div>
+          <div class="text-xs text-brand-400">Administrator</div>
+        </div>
+        <button class="text-brand-400 hover:text-white">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="px-4 py-2 text-center text-brand-400 text-xs">Autify Engine V1 · Zero-Cloud</div>
+  </aside>
+
+  <!-- ── Main content area ── -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Top bar -->
+    <header class="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0">
+      <span class="text-sm text-gray-500">Local Deployment · Draft-Only Workflow</span>
+      <div class="flex items-center gap-4">
+        <!-- Notification bell -->
+        <div class="relative" id="bellWrap">
+          <button id="bellBtn" class="text-gray-500 hover:text-gray-700 relative">
+            <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            <span class="absolute -top-1 -right-1.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">3</span>
+          </button>
+          <div id="bellDropdown" class="hidden absolute right-0 top-8 w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50">
+            <div class="px-4 py-3 border-b border-gray-100 font-semibold text-sm text-gray-700">Notifications (3)</div>
+            <div class="divide-y divide-gray-100 max-h-64 overflow-y-auto">
+              <div class="px-4 py-3 bg-red-50 flex items-start gap-3"><span class="w-2 h-2 rounded-full bg-red-500 mt-1.5 flex-shrink-0"></span><div><div class="text-sm font-medium text-gray-800">Low Stock Alert</div><div class="text-xs text-gray-500">RTL-9012 Spark Plugs at 2 units</div></div></div>
+              <div class="px-4 py-3 bg-yellow-50 flex items-start gap-3"><span class="w-2 h-2 rounded-full bg-yellow-500 mt-1.5 flex-shrink-0"></span><div><div class="text-sm font-medium text-gray-800">Draft Pending Review</div><div class="text-xs text-gray-500">Restock email awaiting approval</div></div></div>
+              <div class="px-4 py-3 bg-red-50 flex items-start gap-3"><span class="w-2 h-2 rounded-full bg-red-500 mt-1.5 flex-shrink-0"></span><div><div class="text-sm font-medium text-gray-800">Anomaly Detected</div><div class="text-xs text-gray-500">Z-score &gt; 3σ on Engine Oil sales</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">A</div>
+          <span class="text-sm font-medium text-gray-700">Admin</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <main class="flex-1 overflow-y-auto p-6" id="pageContent">
+    </main>
+  </div>
+</div>
+
+<!-- ════════ PAGE TEMPLATES (hidden) ════════ -->
+
+<!-- DASHBOARD PAGE -->
+<template id="tpl-dashboard">
+<div>
+  <h1 class="text-2xl font-bold text-gray-900 mb-6 fade-up">Dashboard</h1>
+  <div class="grid grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm fade-up" style="animation-delay:.05s">
+      <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><div class="text-sm text-gray-500">Total Clients</div><div class="text-2xl font-bold text-gray-900">24</div></div></div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm fade-up" style="animation-delay:.1s">
+      <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-lg bg-green-50 text-green-700 flex items-center justify-center"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v5h5"/><path d="M2 15h10"/><path d="M9 18l3-3-3-3"/></svg></div><div><div class="text-sm text-gray-500">Uploaded Inputs</div><div class="text-2xl font-bold text-gray-900">156</div></div></div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm fade-up" style="animation-delay:.15s">
+      <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></div><div><div class="text-sm text-gray-500">Pending Drafts</div><div class="text-2xl font-bold text-gray-900">7</div></div></div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm fade-up" style="animation-delay:.2s">
+      <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-lg bg-red-50 text-red-700 flex items-center justify-center"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div><div><div class="text-sm text-gray-500">Anomalies Found</div><div class="text-2xl font-bold text-red-600">4</div></div></div>
+    </div>
+  </div>
+  <!-- Charts row -->
+  <div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="col-span-2 bg-white rounded-xl border border-gray-200 p-5 shadow-sm fade-up" style="animation-delay:.25s">
+      <h3 class="text-sm font-semibold text-gray-700 mb-4">KPI Overview</h3>
+      <div class="flex items-end gap-3 h-48 px-2">
+        <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-brand-500 transition-all duration-700" style="height:0%" id="bar1"></div><span class="text-[10px] text-gray-500 truncate w-full text-center">Revenue</span></div>
+        <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-brand-500 transition-all duration-700" style="height:0%" id="bar2"></div><span class="text-[10px] text-gray-500 truncate w-full text-center">Units Sold</span></div>
+        <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-brand-500 transition-all duration-700" style="height:0%" id="bar3"></div><span class="text-[10px] text-gray-500 truncate w-full text-center">Avg Basket</span></div>
+        <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-brand-500 transition-all duration-700" style="height:0%" id="bar4"></div><span class="text-[10px] text-gray-500 truncate w-full text-center">Orders</span></div>
+        <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-brand-500 transition-all duration-700" style="height:0%" id="bar5"></div><span class="text-[10px] text-gray-500 truncate w-full text-center">Margin</span></div>
+      </div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm fade-up" style="animation-delay:.3s">
+      <h3 class="text-sm font-semibold text-gray-700 mb-4">Draft Status</h3>
+      <div class="flex items-center justify-center h-48">
+        <svg viewBox="0 0 180 180" class="w-44 h-44">
+          <circle cx="90" cy="90" r="70" fill="none" stroke="#e5e7eb" stroke-width="28"/>
+          <circle cx="90" cy="90" r="70" fill="none" stroke="#3388ff" stroke-width="28"
+            stroke-dasharray="0 440" id="pieApproved" class="transition-all duration-1000"
+            transform="rotate(-90 90 90)"/>
+          <circle cx="90" cy="90" r="70" fill="none" stroke="#10b981" stroke-width="28"
+            stroke-dasharray="0 440" id="piePending" class="transition-all duration-1000"
+            transform="rotate(-90 90 90)"/>
+          <text x="90" y="85" text-anchor="middle" class="text-sm font-bold" fill="#111827" font-size="14">12 Drafts</text>
+          <text x="90" y="102" text-anchor="middle" fill="#6b7280" font-size="11">5 Approved · 7 Pending</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <!-- Trend chart -->
+  <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm fade-up" style="animation-delay:.35s">
+    <h3 class="text-sm font-semibold text-gray-700 mb-4">Revenue Trend (Last 7 Days)</h3>
+    <svg viewBox="0 0 800 200" class="w-full h-40" id="trendChart">
+      <line x1="60" y1="10" x2="60" y2="180" stroke="#e5e7eb" stroke-width="1"/>
+      <line x1="60" y1="180" x2="780" y2="180" stroke="#e5e7eb" stroke-width="1"/>
+      <line x1="60" y1="95" x2="780" y2="95" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4"/>
+      <line x1="60" y1="10" x2="780" y2="10" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4"/>
+      <text x="10" y="185" fill="#9ca3af" font-size="10">R0</text>
+      <text x="10" y="100" fill="#9ca3af" font-size="10">R70K</text>
+      <text x="10" y="15" fill="#9ca3af" font-size="10">R140K</text>
+      <polyline id="trendLine" fill="none" stroke="#1354e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+        points="" class="transition-all duration-1000"/>
+      <g id="trendDots"></g>
+      <g id="trendLabels">
+        <text x="163" y="196" fill="#9ca3af" font-size="10" text-anchor="middle">Mar 6</text>
+        <text x="283" y="196" fill="#9ca3af" font-size="10" text-anchor="middle">Mar 7</text>
+        <text x="403" y="196" fill="#9ca3af" font-size="10" text-anchor="middle">Mar 8</text>
+        <text x="523" y="196" fill="#9ca3af" font-size="10" text-anchor="middle">Mar 9</text>
+        <text x="643" y="196" fill="#9ca3af" font-size="10" text-anchor="middle">Mar 10</text>
+        <text x="763" y="196" fill="#9ca3af" font-size="10" text-anchor="middle">Mar 11</text>
+      </g>
+    </svg>
+  </div>
+</div>
+</template>
+
+<!-- CLIENTS PAGE -->
+<template id="tpl-clients">
+<div>
+  <h1 class="text-2xl font-bold text-gray-900 mb-6 fade-up">Clients</h1>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm fade-up" style="animation-delay:.1s">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+          <th class="px-4 py-3 text-left">ID</th><th class="px-4 py-3 text-left">Name</th><th class="px-4 py-3 text-left">Surname</th><th class="px-4 py-3 text-left">Email</th><th class="px-4 py-3 text-left">Company</th><th class="px-4 py-3 text-left">Phone</th><th class="px-4 py-3 text-left">Last Update</th><th class="px-4 py-3 text-left">Actions</th>
+        </tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr class="hover:bg-gray-50"><td class="px-4 py-3 font-mono text-xs">#1</td><td class="px-4 py-3 font-medium">AutoZone</td><td class="px-4 py-3">Wholesalers</td><td class="px-4 py-3 text-gray-600">orders@autozone.co.za</td><td class="px-4 py-3">AutoZone SA</td><td class="px-4 py-3">011-555-0101</td><td class="px-4 py-3 text-gray-500">2026-03-11</td><td class="px-4 py-3"><button class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">Edit</button></td></tr>
+          <tr class="hover:bg-gray-50"><td class="px-4 py-3 font-mono text-xs">#2</td><td class="px-4 py-3 font-medium">Midas</td><td class="px-4 py-3">Group</td><td class="px-4 py-3 text-gray-600">supply@midas.co.za</td><td class="px-4 py-3">Midas Retail</td><td class="px-4 py-3">012-555-0202</td><td class="px-4 py-3 text-gray-500">2026-03-10</td><td class="px-4 py-3"><button class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">Edit</button></td></tr>
+          <tr class="hover:bg-gray-50"><td class="px-4 py-3 font-mono text-xs">#3</td><td class="px-4 py-3 font-medium">Tiger Wheel</td><td class="px-4 py-3">& Tyre</td><td class="px-4 py-3 text-gray-600">procure@twt.co.za</td><td class="px-4 py-3">TW&T Holdings</td><td class="px-4 py-3">021-555-0303</td><td class="px-4 py-3 text-gray-500">2026-03-09</td><td class="px-4 py-3"><button class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">Edit</button></td></tr>
+          <tr class="hover:bg-gray-50"><td class="px-4 py-3 font-mono text-xs">#4</td><td class="px-4 py-3 font-medium">Goldwagen</td><td class="px-4 py-3">Parts</td><td class="px-4 py-3 text-gray-600">info@goldwagen.co.za</td><td class="px-4 py-3">Goldwagen Int</td><td class="px-4 py-3">011-555-0404</td><td class="px-4 py-3 text-gray-500">2026-03-08</td><td class="px-4 py-3"><button class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">Edit</button></td></tr>
+          <tr class="hover:bg-gray-50"><td class="px-4 py-3 font-mono text-xs">#5</td><td class="px-4 py-3 font-medium">Sparesboyz</td><td class="px-4 py-3">JHB</td><td class="px-4 py-3 text-gray-600">sales@sparesboyz.co.za</td><td class="px-4 py-3">Sparesboyz PTY</td><td class="px-4 py-3">010-555-0505</td><td class="px-4 py-3 text-gray-500">2026-03-07</td><td class="px-4 py-3"><button class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">Edit</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</template>
+
+<!-- INPUTS PAGE -->
+<template id="tpl-inputs">
+<div>
+  <h1 class="text-2xl font-bold text-gray-900 mb-6 fade-up">Inputs</h1>
+  <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm mb-6 fade-up" style="animation-delay:.1s">
+    <h3 class="text-sm font-semibold text-gray-700 mb-3">Upload & Analyse</h3>
+    <div class="flex items-end gap-4">
+      <div class="flex-1"><label class="text-xs text-gray-500 block mb-1">Client</label><select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"><option>AutoZone Wholesalers</option><option>Midas Group</option></select></div>
+      <div class="flex-1"><label class="text-xs text-gray-500 block mb-1">File (CSV, XLSX, PDF)</label><input type="file" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm"></div>
+      <button class="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium flex items-center gap-2 whitespace-nowrap">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload & Analyse
+      </button>
+    </div>
+  </div>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm fade-up" style="animation-delay:.15s">
+    <div class="px-5 py-3 border-b border-gray-100"><h3 class="text-sm font-semibold text-gray-700">Upload History</h3></div>
+    <table class="w-full text-sm">
+      <thead><tr class="bg-gray-50 text-xs uppercase tracking-wider text-gray-500"><th class="px-4 py-3 text-left">ID</th><th class="px-4 py-3 text-left">Client</th><th class="px-4 py-3 text-left">File</th><th class="px-4 py-3 text-left">Type</th><th class="px-4 py-3 text-left">Uploaded</th></tr></thead>
+      <tbody class="divide-y divide-gray-100">
+        <tr><td class="px-4 py-3 font-mono text-xs">#42</td><td class="px-4 py-3">AutoZone</td><td class="px-4 py-3 text-gray-600">pos_daily_20260311.csv</td><td class="px-4 py-3"><span class="uppercase text-xs font-medium bg-blue-50 text-blue-700 px-2 py-0.5 rounded">CSV</span></td><td class="px-4 py-3 text-gray-500">2026-03-11 14:32</td></tr>
+        <tr><td class="px-4 py-3 font-mono text-xs">#41</td><td class="px-4 py-3">Midas</td><td class="px-4 py-3 text-gray-600">inventory_snapshot.xlsx</td><td class="px-4 py-3"><span class="uppercase text-xs font-medium bg-green-50 text-green-700 px-2 py-0.5 rounded">XLSX</span></td><td class="px-4 py-3 text-gray-500">2026-03-11 09:15</td></tr>
+        <tr><td class="px-4 py-3 font-mono text-xs">#40</td><td class="px-4 py-3">Tiger Wheel</td><td class="px-4 py-3 text-gray-600">supplier_invoice_march.pdf</td><td class="px-4 py-3"><span class="uppercase text-xs font-medium bg-red-50 text-red-700 px-2 py-0.5 rounded">PDF</span></td><td class="px-4 py-3 text-gray-500">2026-03-10 16:48</td></tr>
+        <tr><td class="px-4 py-3 font-mono text-xs">#39</td><td class="px-4 py-3">Goldwagen</td><td class="px-4 py-3 text-gray-600">weekly_sales_w10.csv</td><td class="px-4 py-3"><span class="uppercase text-xs font-medium bg-blue-50 text-blue-700 px-2 py-0.5 rounded">CSV</span></td><td class="px-4 py-3 text-gray-500">2026-03-10 11:20</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</template>
+
+<!-- DRAFTS PAGE -->
+<template id="tpl-drafts">
+<div>
+  <h1 class="text-2xl font-bold text-gray-900 mb-4 fade-up">Drafts</h1>
+  <div class="flex gap-2 mb-4 fade-up" style="animation-delay:.05s">
+    <button class="px-3 py-1.5 rounded-lg text-sm font-medium bg-brand-600 text-white">All</button>
+    <button class="px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 text-gray-600">Pending</button>
+    <button class="px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 text-gray-600">Approved</button>
+    <button class="px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 text-gray-600">Rejected</button>
+  </div>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm fade-up" style="animation-delay:.1s">
+    <table class="w-full text-sm">
+      <thead><tr class="bg-gray-50 text-xs uppercase tracking-wider text-gray-500"><th class="px-4 py-3 text-left">ID</th><th class="px-4 py-3 text-left">Type</th><th class="px-4 py-3 text-left">Preview</th><th class="px-4 py-3 text-left">Status</th><th class="px-4 py-3 text-left">Actions</th></tr></thead>
+      <tbody class="divide-y divide-gray-100">
+        <tr class="hover:bg-gray-50"><td class="px-4 py-3 font-mono text-xs">#DRF-042</td><td class="px-4 py-3"><span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Email</span></td><td class="px-4 py-3 text-gray-600 max-w-xs truncate">⚠ Restock Alert — 4 SKUs Below Threshold</td><td class="px-4 py-3"><span class="text-amber-600 font-medium">⏳ Pending</span></td><td class="px-4 py-3 flex gap-2"><button class="px-2.5 py-1 bg-green-600 text-white text-xs rounded font-medium" id="approveBtn">Approve</button><button class="px-2.5 py-1 bg-red-50 text-red-600 text-xs rounded font-medium">Reject</button></td></tr>
+        <tr class="hover:bg-gray-50"><td class="px-4 py-3 font-mono text-xs">#DRF-041</td><td class="px-4 py-3"><span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-12"/></svg> Report</span></td><td class="px-4 py-3 text-gray-600 max-w-xs truncate">POS Daily Summary — AutoZone — R135,920</td><td class="px-4 py-3"><span class="flex items-center gap-1.5 text-green-700 font-medium"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Approved</span></td><td class="px-4 py-3 text-gray-400 text-xs">—</td></tr>
+        <tr class="hover:bg-gray-50"><td class="px-4 py-3 font-mono text-xs">#DRF-040</td><td class="px-4 py-3"><span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Email</span></td><td class="px-4 py-3 text-gray-600 max-w-xs truncate">Client Notification — Tiger Wheel Service Due</td><td class="px-4 py-3"><span class="text-amber-600 font-medium">⏳ Pending</span></td><td class="px-4 py-3 flex gap-2"><button class="px-2.5 py-1 bg-green-600 text-white text-xs rounded font-medium">Approve</button><button class="px-2.5 py-1 bg-red-50 text-red-600 text-xs rounded font-medium">Reject</button></td></tr>
+        <tr class="hover:bg-gray-50"><td class="px-4 py-3 font-mono text-xs">#DRF-039</td><td class="px-4 py-3"><span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Calendar</span></td><td class="px-4 py-3 text-gray-600 max-w-xs truncate">Job Scheduling — Midas Group — 6 Services</td><td class="px-4 py-3"><span class="flex items-center gap-1.5 text-green-700 font-medium"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Approved</span></td><td class="px-4 py-3 text-gray-400 text-xs">—</td></tr>
+        <tr class="hover:bg-gray-50"><td class="px-4 py-3 font-mono text-xs">#DRF-038</td><td class="px-4 py-3"><span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Email</span></td><td class="px-4 py-3 text-gray-600 max-w-xs truncate">Billing Workflow — Sparesboyz Invoice #INV-1089</td><td class="px-4 py-3"><span class="flex items-center gap-1.5 text-red-600 font-medium"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> Rejected</span></td><td class="px-4 py-3 text-gray-400 text-xs">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</template>
+
+<!-- CHAT PAGE -->
+<template id="tpl-chat">
+<div class="flex flex-col" style="height:calc(720px - 7rem)">
+  <div class="flex items-center justify-between mb-4 fade-up">
+    <div><h1 class="text-2xl font-bold text-gray-900">Chat Assistant</h1><p class="text-sm text-gray-500">Local LLM · Zero-Cloud · Draft-Only</p></div>
+  </div>
+  <div class="flex-1 bg-white rounded-xl border border-gray-200 shadow-sm p-4 overflow-y-auto mb-4 flex flex-col gap-3" id="chatMessages">
+    <div class="flex items-center justify-center h-full text-gray-400 flex-col gap-2" id="chatEmpty">
+      <svg class="w-12 h-12 opacity-50" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 6V2H8"/><path d="m8 18-4 4V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2Z"/></svg>
+      <span class="text-sm">No messages yet</span>
+      <span class="text-xs text-gray-400">Ask about your data — all processing stays local</span>
+    </div>
+  </div>
+  <div class="flex gap-3 fade-up" style="animation-delay:.1s">
+    <input id="chatInput" type="text" class="flex-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Ask about your data…">
+    <button id="chatSend" class="px-4 py-2.5 bg-brand-600 text-white rounded-xl text-sm font-medium flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+      Send
+    </button>
+  </div>
+</div>
+</template>
+
+<!-- SETTINGS PAGE -->
+<template id="tpl-settings">
+<div>
+  <h1 class="text-2xl font-bold text-gray-900 mb-6 fade-up">Settings</h1>
+  <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm max-w-xl space-y-5 fade-up" style="animation-delay:.1s">
+    <div>
+      <h3 class="text-sm font-semibold text-gray-700 mb-1">System Health</h3>
+      <div class="flex items-center gap-2 text-sm"><span class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block" style="animation:pulse 2s infinite"></span> <span class="text-green-700 font-medium">All Systems Operational</span></div>
+      <div class="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-500">
+        <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Backend API (port 18080)</div>
+        <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Dashboard (port 18300)</div>
+        <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Local LLM (port 11434)</div>
+        <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> SQLite Database</div>
+      </div>
+    </div>
+    <hr class="border-gray-100">
+    <div>
+      <h3 class="text-sm font-semibold text-gray-700 mb-1">License</h3>
+      <p class="text-sm text-gray-600">Hardware-bound activation · SHA-256 fingerprint<br>
+      <span class="font-mono text-xs text-gray-400">a3f7c1…d942e8</span> · Expires: 2027-03-01</p>
+    </div>
+    <hr class="border-gray-100">
+    <div>
+      <h3 class="text-sm font-semibold text-gray-700 mb-1">Zero-Cloud Compliance</h3>
+      <div class="flex items-center gap-2 text-sm text-green-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> All data processed locally · 0 bytes external</div>
+    </div>
+    <hr class="border-gray-100">
+    <div>
+      <h3 class="text-sm font-semibold text-gray-700 mb-1">Telemetry</h3>
+      <div class="flex items-center gap-2"><input type="checkbox" disabled class="rounded border-gray-300"> <span class="text-sm text-gray-400">Opt-in analytics (coming soon)</span></div>
+    </div>
+  </div>
+</div>
+</template>
+
+<!-- REPORTS PAGE -->
+<template id="tpl-reports">
+<div>
+  <h1 class="text-2xl font-bold text-gray-900 mb-6 fade-up">Reports</h1>
+  <div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm fade-up" style="animation-delay:.1s">
+      <h3 class="text-sm font-semibold text-gray-700 mb-4">Cumulative KPIs</h3>
+      <div class="flex items-end gap-2 h-40 px-2">
+        <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-brand-500" style="height:75%"></div><span class="text-[9px] text-gray-500">Revenue</span></div>
+        <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-green-500" style="height:55%"></div><span class="text-[9px] text-gray-500">Units</span></div>
+        <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-amber-500" style="height:35%"></div><span class="text-[9px] text-gray-500">Basket</span></div>
+        <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-purple-500" style="height:65%"></div><span class="text-[9px] text-gray-500">Orders</span></div>
+      </div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm fade-up" style="animation-delay:.15s">
+      <h3 class="text-sm font-semibold text-gray-700 mb-4">Trend Over Time</h3>
+      <svg viewBox="0 0 400 150" class="w-full h-40">
+        <polyline fill="none" stroke="#1354e1" stroke-width="2" points="20,120 80,90 140,100 200,60 260,70 320,40 380,30"/>
+        <g fill="#1354e1"><circle cx="20" cy="120" r="3"/><circle cx="80" cy="90" r="3"/><circle cx="140" cy="100" r="3"/><circle cx="200" cy="60" r="3"/><circle cx="260" cy="70" r="3"/><circle cx="320" cy="40" r="3"/><circle cx="380" cy="30" r="3"/></g>
+      </svg>
+    </div>
+  </div>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm fade-up" style="animation-delay:.2s">
+    <div class="px-5 py-3 border-b border-gray-100"><h3 class="text-sm font-semibold text-gray-700">Anomalies</h3></div>
+    <table class="w-full text-sm">
+      <thead><tr class="bg-gray-50 text-xs uppercase tracking-wider text-gray-500"><th class="px-4 py-3 text-left">Column</th><th class="px-4 py-3 text-left">Value</th><th class="px-4 py-3 text-left">Reason</th></tr></thead>
+      <tbody class="divide-y divide-gray-100">
+        <tr class="bg-red-50"><td class="px-4 py-3 font-medium">stock_qty (RTL-9012)</td><td class="px-4 py-3 text-red-700 font-bold">2</td><td class="px-4 py-3 text-gray-600">Z-score 4.2 — below reorder point (15)</td></tr>
+        <tr class="bg-red-50"><td class="px-4 py-3 font-medium">stock_qty (RTL-8833)</td><td class="px-4 py-3 text-red-700 font-bold">3</td><td class="px-4 py-3 text-gray-600">Z-score 3.8 — below reorder point (20)</td></tr>
+        <tr class="bg-red-50"><td class="px-4 py-3 font-medium">units_sold (RTL-4521)</td><td class="px-4 py-3 text-red-700 font-bold">134</td><td class="px-4 py-3 text-gray-600">Z-score 3.1 — unusually high demand</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</template>
+
+<!-- USERS PAGE -->
+<template id="tpl-users">
+<div>
+  <div class="flex items-center justify-between mb-6 fade-up">
+    <h1 class="text-2xl font-bold text-gray-900">User Management</h1>
+    <button class="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+      Add User
+    </button>
+  </div>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm fade-up" style="animation-delay:.1s">
+    <table class="w-full text-sm">
+      <thead><tr class="bg-gray-50 text-xs uppercase tracking-wider text-gray-500"><th class="px-4 py-3 text-left">ID</th><th class="px-4 py-3 text-left">Username</th><th class="px-4 py-3 text-left">Display Name</th><th class="px-4 py-3 text-left">Role</th><th class="px-4 py-3 text-left">Status</th><th class="px-4 py-3 text-left">Last Login</th><th class="px-4 py-3 text-left">Actions</th></tr></thead>
+      <tbody class="divide-y divide-gray-100">
+        <tr class="hover:bg-gray-50"><td class="px-4 py-3 font-mono text-xs">#1</td><td class="px-4 py-3 font-medium">admin</td><td class="px-4 py-3">Administrator</td><td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-purple-100 text-purple-700 text-xs font-medium"><svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg> Admin</span></td><td class="px-4 py-3"><span class="flex items-center gap-1.5 text-xs"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Active</span></td><td class="px-4 py-3 text-gray-500">2026-03-12 07:15</td><td class="px-4 py-3 text-gray-400 text-xs">—</td></tr>
+        <tr class="hover:bg-gray-50"><td class="px-4 py-3 font-mono text-xs">#2</td><td class="px-4 py-3 font-medium">herman</td><td class="px-4 py-3">Herman</td><td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-purple-100 text-purple-700 text-xs font-medium"><svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg> Admin</span></td><td class="px-4 py-3"><span class="flex items-center gap-1.5 text-xs"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Active</span></td><td class="px-4 py-3 text-gray-500">2026-03-11 18:42</td><td class="px-4 py-3 text-gray-400 text-xs">—</td></tr>
+        <tr class="hover:bg-gray-50"><td class="px-4 py-3 font-mono text-xs">#3</td><td class="px-4 py-3 font-medium">operator1</td><td class="px-4 py-3">Floor Operator</td><td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-medium">User</span></td><td class="px-4 py-3"><span class="flex items-center gap-1.5 text-xs"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Active</span></td><td class="px-4 py-3 text-gray-500">2026-03-10 09:30</td><td class="px-4 py-3"><button class="text-red-500 text-xs flex items-center gap-1 hover:text-red-700"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg> Deactivate</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</template>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  Navigation & page rendering
+// ═══════════════════════════════════════════════════════════════════
+function showPage(name) {
+  const tpl = document.getElementById('tpl-' + name);
+  if (!tpl) return;
+  document.getElementById('pageContent').innerHTML = '';
+  document.getElementById('pageContent').appendChild(tpl.content.cloneNode(true));
+
+  document.querySelectorAll('.nav-link').forEach(el => {
+    el.classList.remove('bg-brand-700','text-white');
+    el.classList.add('text-brand-200','hover:bg-brand-800');
+  });
+  const active = document.querySelector(`[data-page="${name}"]`);
+  if (active) {
+    active.classList.add('bg-brand-700','text-white');
+    active.classList.remove('text-brand-200','hover:bg-brand-800');
+  }
+
+  // Animate dashboard charts after rendering
+  if (name === 'dashboard') {
+    setTimeout(animateDashboard, 100);
+  }
+}
+
+function animateDashboard() {
+  const bars = {bar1:'80%', bar2:'55%', bar3:'35%', bar4:'45%', bar5:'60%'};
+  Object.entries(bars).forEach(([id, h]) => {
+    const el = document.getElementById(id);
+    if (el) el.style.height = h;
+  });
+
+  // Pie chart
+  const approved = document.getElementById('pieApproved');
+  const pending = document.getElementById('piePending');
+  if (approved) approved.setAttribute('stroke-dasharray', '183 257');  // ~42%
+  if (pending) {
+    pending.setAttribute('stroke-dasharray', '257 183');
+    pending.setAttribute('stroke-dashoffset', '-183');
+  }
+
+  // Trend line
+  const pts = [[163,120],[283,80],[403,90],[523,45],[643,55],[763,30]];
+  const line = document.getElementById('trendLine');
+  const dots = document.getElementById('trendDots');
+  if (line) line.setAttribute('points', pts.map(p=>p.join(',')).join(' '));
+  if (dots) dots.innerHTML = pts.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3.5" fill="#1354e1"/>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  Chat simulation
+// ═══════════════════════════════════════════════════════════════════
+function addChatMessage(role, text) {
+  const empty = document.getElementById('chatEmpty');
+  if (empty) empty.remove();
+  const container = document.getElementById('chatMessages');
+  if (!container) return;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'flex gap-3 fade-up ' + (role === 'user' ? 'justify-end' : '');
+
+  if (role === 'user') {
+    wrapper.innerHTML = `
+      <div class="bg-brand-600 text-white rounded-2xl px-4 py-2.5 text-sm max-w-md">${text}</div>
+      <div class="w-7 h-7 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>`;
+  } else if (role === 'typing') {
+    wrapper.innerHTML = `
+      <div class="w-7 h-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 6V2H8"/><path d="m8 18-4 4V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2Z"/></svg>
+      </div>
+      <div class="bg-gray-100 rounded-2xl px-4 py-3 flex gap-1.5">
+        <span class="w-2 h-2 bg-gray-400 rounded-full" style="animation:bounce1 1.4s infinite"></span>
+        <span class="w-2 h-2 bg-gray-400 rounded-full" style="animation:bounce2 1.4s .2s infinite"></span>
+        <span class="w-2 h-2 bg-gray-400 rounded-full" style="animation:bounce3 1.4s .4s infinite"></span>
+      </div>`;
+    wrapper.id = 'typingIndicator';
+  } else if (role === 'assistant-draft') {
+    wrapper.innerHTML = `
+      <div class="w-7 h-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 6V2H8"/><path d="m8 18-4 4V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2Z"/></svg>
+      </div>
+      <div class="max-w-md">
+        <div class="bg-gray-100 text-gray-800 rounded-2xl px-4 py-2.5 text-sm">${text}</div>
+        <div class="mt-1.5 flex items-center gap-1.5 text-xs text-amber-600">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+          This is a DRAFT — requires human approval before sending
+        </div>
+      </div>`;
+  } else {
+    wrapper.innerHTML = `
+      <div class="w-7 h-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 6V2H8"/><path d="m8 18-4 4V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2Z"/></svg>
+      </div>
+      <div class="bg-gray-100 text-gray-800 rounded-2xl px-4 py-2.5 text-sm max-w-md">${text}</div>`;
+  }
+
+  container.appendChild(wrapper);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  Login simulation
+// ═══════════════════════════════════════════════════════════════════
+function doLogin() {
+  const screen = document.getElementById('loginScreen');
+  screen.style.transition = 'opacity 0.4s';
+  screen.style.opacity = '0';
+  setTimeout(() => {
+    screen.classList.add('hidden');
+    document.getElementById('mainLayout').classList.remove('hidden');
+    showPage('dashboard');
+  }, 400);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  AUTOMATED DEMO SEQUENCE (driven by Playwright or auto-play)
+// ═══════════════════════════════════════════════════════════════════
+const DEMO_SEQUENCE = [
+  // Login
+  { t: 1500, action: () => { document.getElementById('loginUser').value = 'admin'; }},
+  { t: 2200, action: () => { document.getElementById('loginPass').value = '••••••••'; }},
+  { t: 3000, action: () => doLogin() },
+
+  // Dashboard — admire it
+  { t: 6000, action: () => { /* pause on dashboard */ }},
+
+  // Notifications
+  { t: 7000, action: () => {
+    document.getElementById('bellDropdown').classList.remove('hidden');
+  }},
+  { t: 9500, action: () => {
+    document.getElementById('bellDropdown').classList.add('hidden');
+  }},
+
+  // Navigate to Clients
+  { t: 10500, action: () => showPage('clients') },
+  { t: 13000, action: () => showPage('inputs') },
+  { t: 15500, action: () => showPage('drafts') },
+
+  // Approve a draft
+  { t: 17500, action: () => {
+    const btn = document.getElementById('approveBtn');
+    if (btn) {
+      const row = btn.closest('tr');
+      const statusCell = row?.querySelectorAll('td')[3];
+      if (statusCell) statusCell.innerHTML = '<span class="flex items-center gap-1.5 text-green-700 font-medium"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Approved</span>';
+      const actCell = row?.querySelectorAll('td')[4];
+      if (actCell) actCell.innerHTML = '<span class="text-gray-400 text-xs">—</span>';
+    }
+  }},
+
+  // Navigate to Chat
+  { t: 19500, action: () => showPage('chat') },
+
+  // Type a message
+  { t: 21000, action: () => {
+    const input = document.getElementById('chatInput');
+    if (input) {
+      const msg = "Check yesterday's sales and draft a restock email for low-stock items.";
+      let i = 0;
+      const typeInterval = setInterval(() => {
+        if (i < msg.length) { input.value += msg[i]; i++; }
+        else clearInterval(typeInterval);
+      }, 30);
+    }
+  }},
+
+  // Send message
+  { t: 24000, action: () => {
+    const input = document.getElementById('chatInput');
+    addChatMessage('user', input?.value || '');
+    if (input) input.value = '';
+    setTimeout(() => addChatMessage('typing', ''), 400);
+  }},
+
+  // Bot response
+  { t: 27000, action: () => {
+    removeTyping();
+    addChatMessage('assistant', 'I\'ve analysed yesterday\'s POS data. Total revenue: <strong>R135,920</strong> across <strong>515 units</strong>. I found <strong>4 SKUs</strong> below reorder thresholds.');
+  }},
+
+  { t: 29500, action: () => {
+    addChatMessage('assistant-draft', 'I\'ve drafted a restock email to procurement@company.local for the 4 low-stock SKUs (RTL-9012, RTL-8833, RTL-3390, RTL-4521). The draft is ready for your review in the <strong>Drafts</strong> page.');
+  }},
+
+  // Reports
+  { t: 33000, action: () => showPage('reports') },
+  // Users
+  { t: 36000, action: () => showPage('users') },
+  // Settings
+  { t: 39000, action: () => showPage('settings') },
+
+  // Back to dashboard
+  { t: 42000, action: () => showPage('dashboard') },
+
+  // Signal done
+  { t: 45000, action: () => { document.title = 'DONE'; }},
+];
+
+// Auto-play on load
+window.addEventListener('load', () => {
+  DEMO_SEQUENCE.forEach(({ t, action }) => setTimeout(action, t));
+});
+</script>
+</body>
+</html>
